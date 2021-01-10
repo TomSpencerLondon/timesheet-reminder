@@ -1,0 +1,29 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+repositories {
+    mavenCentral()
+}
+
+def aws_sdk_version = '2.10.65'
+
+dependencies {
+    compile(
+            'org.apache.poi:poi-ooxml:4.1.0',
+            'org.apache.poi:poi:4.1.2',
+            'org.postgresql:postgresql:42.2.18',
+            'software.amazon.awssdk:ssm:2.15.59',
+            'com.amazonaws:aws-java-sdk:1.11.934'
+    )
+}
+
+task buildZip(type: Zip) {
+    from compileJava
+    from processResources
+    into('lib') {
+        from configurations.runtime
+    }
+}
+
+sourceCompatibility = '11'
+targetCompatibility = '11'

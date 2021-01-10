@@ -1,0 +1,43 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: An AWS Lambda function for timesheet gaps
+
+Resources:
+  lambdaTimesheetGaps:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: timesheet-reminder
+      Handler: codurance.com.timesheet.reminder.CalendarAnalyser::launch
+      Runtime: java11
+      CodeUri: ./build/distributions/timesheet-reminder.zip
+      MemorySize: 512
+      Timeout: 30
+      Role: !Sub ${role.Arn}
+      Environment:
+        Variables:
+          env: aws
+  role:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: lambda.timesheet-reminder-role
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      ManagedPolicyArns: ['arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole', 'arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole']
+      Policies:
+        - PolicyName: get-parameter-policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                  - s3:PutObject
+                Resource: '*'
